@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  sentinel-hub:
+    build: .
+    container_name: sentinel-hub
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      # Named volume for SQLite database — Docker creates the file automatically on first run
+      - sentinel-db:/app/prisma
+      # Persistent storage for video recordings
+      - ./data/recordings:/app/public/recordings
+      # Persistent storage for thumbnails
+      - ./data/thumbnails:/app/public/thumbnails
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=file:/app/prisma/dev.db
+      - NODE_ENV=production
+      - NEXTAUTH_URL=http://localhost:3000
+      - AUTH_TRUST_HOST=true
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Named volume: Docker manages this automatically.
+# The database file is created on first run by the entrypoint migration.
+# To backup: docker cp sentinel-hub:/app/prisma/dev.db ./backup.db
+volumes:
+  sentinel-db:
+
+
+networks:
+  default:
+    name: sentinel-network

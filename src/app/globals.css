@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Global Dark Theme Configuration */
+body {
+  background-color: #0f172a; /* Slate-900 */
+  color: #ffffff;
+}
