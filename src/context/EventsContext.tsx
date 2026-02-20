@@ -255,12 +255,17 @@ export function EventsProvider({ children }: EventsProviderProp) {
         fetchData(true);
     }, []); // Only once
 
-    // Effect to fetch 'All' events when switching to that tab for the first time
+    // Automatically fetch events when a tab is selected and its list is empty
+    // (e.g., after the user switches back to a tab that had its memory cleared)
     useEffect(() => {
-        if (activeTab === 'all' && allEvents.length === 0 && !isLoading && hasMoreAll) {
+        const currentList = activeTab === 'unread' ? unreadEvents : allEvents;
+        const currentHasMore = activeTab === 'unread' ? hasMoreUnread : hasMoreAll;
+
+        if (currentList.length === 0 && !isLoading && currentHasMore) {
             fetchData();
         }
-    }, [activeTab, allEvents.length, isLoading, fetchData, hasMoreAll]);
+    }, [activeTab, unreadEvents.length, allEvents.length, isLoading, hasMoreUnread, hasMoreAll, fetchData]);
+
 
     return (
         <EventsContext.Provider value={{
