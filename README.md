@@ -13,6 +13,8 @@ Built for independent security research and personal surveillance optimization.
 - **Smart Recording**: Automated 15-second high-quality MP4 recordings triggered specifically by person detection alerts.
 - **Auto-Sync (Reconciliation)**: Automatically scans storage for existing recordings on startup to ensure no event is missed.
 - **Data Retention**: Intelligent cleanup policy that manages disk space while preserving important events.
+- **Bulk Actions**: Efficient server-side "Mark all as read" functionality for instant synchronization.
+- **Performance Optimized**: Adaptive pagination and tab-switching logic for smooth navigation with 200+ events.
 
 ### 💻 Advanced Engineering
 - **ONVIF Integration**: Native communication with IP cameras using the ONVIF protocol for alarm subscriptions.

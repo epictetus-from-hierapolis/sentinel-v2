@@ -19,8 +19,10 @@ export default function EventsPage() {
     error,
     retry,
     markAsRead,
+    markAllAsRead,
     activeTab,
-    setActiveTab
+    setActiveTab,
+    clearTabData
   } = useEvents();
 
   // --- 1. FILTERING (Strict Unread) ---
@@ -107,8 +109,7 @@ export default function EventsPage() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const handleMarkAllRead = () => {
-    const unreadIds = events.filter((e: SecurityEvent) => !e.isRead).map((e: SecurityEvent) => e.id);
-    unreadIds.forEach(id => markAsRead(id));
+    markAllAsRead();
   };
 
   if (error) return <ErrorDisplay message={error} onRetry={retry} />;
@@ -120,7 +121,10 @@ export default function EventsPage() {
         <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-white/5 shadow-2xl">
           <button
             onClick={() => {
-              setActiveTab('unread');
+              if (activeTab !== 'unread') {
+                clearTabData('all'); // Clear memory of the tab we are leaving
+                setActiveTab('unread');
+              }
               sessionStorage.removeItem(`scroll-pos-unread`);
               sessionStorage.removeItem(`scroll-count-unread`);
               window.scrollTo(0, 0);
@@ -138,7 +142,10 @@ export default function EventsPage() {
           </button>
           <button
             onClick={() => {
-              setActiveTab('all');
+              if (activeTab !== 'all') {
+                clearTabData('unread'); // Clear memory of the tab we are leaving
+                setActiveTab('all');
+              }
               sessionStorage.removeItem(`scroll-pos-all`);
               sessionStorage.removeItem(`scroll-count-all`);
               window.scrollTo(0, 0);

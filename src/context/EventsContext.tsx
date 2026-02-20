@@ -8,6 +8,7 @@ interface EventsContextType {
     cameras: Camera[];
     unreadCount: number;
     markAsRead: (id: string) => void;
+    markAllAsRead: () => void;
     deleteEvent: (id: string) => void;
     isLoading: boolean;
     isLoadingMore: boolean;
@@ -15,6 +16,7 @@ interface EventsContextType {
     error: string | null;
     retry: () => void;
     fetchMore: () => Promise<void>;
+    clearTabData: (tab: 'unread' | 'all') => void;
     activeToast: SecurityEvent | null;
     activeTab: 'unread' | 'all';
     setActiveTab: (tab: 'unread' | 'all') => void;
@@ -69,7 +71,8 @@ export function EventsProvider({ children }: EventsProviderProp) {
             // Scroll Restoration Support: Read how many items were loaded previously for this tab
             const scrollKey = `scroll-count-${activeTab}`;
             const savedCount = sessionStorage.getItem(scrollKey);
-            const initialLimit = savedCount ? Math.max(20, parseInt(savedCount)) : 20;
+            // Optimization: Cap the initial restoration to avoid rendering freezes
+            const initialLimit = savedCount ? Math.min(40, Math.max(20, parseInt(savedCount))) : 20;
 
             const [unreadResponse, camerasResponse] = await Promise.all([
                 fetch(`/api/events?unread=true&limit=${activeTab === 'unread' ? initialLimit : 20}`),
@@ -206,6 +209,36 @@ export function EventsProvider({ children }: EventsProviderProp) {
         }
     }, [unreadEvents, allEvents]);
 
+    const markAllAsRead = useCallback(async () => {
+        // Marks all unread events as read on the backend.
+        // Performs an optimistic UI update for instant feedback by clearing the unread list
+        // and resetting the counter.
+        setServerUnreadCount(0);
+        const updateFn = (prev: SecurityEvent[]) => prev.map(ev => ({ ...ev, isRead: true }));
+        setUnreadEvents([]);
+        setAllEvents(updateFn);
+
+        try {
+            await fetch('/api/events/read-all', { method: 'PATCH' });
+        } catch (e) {
+            console.error("❌ API Error [markAllAsRead]:", e);
+            fetchData(); // Rollback/Refresh state from server on failure
+        }
+    }, [fetchData]);
+
+    const clearTabData = useCallback((tab: 'unread' | 'all') => {
+        // Memory Optimization: Clears the state for the specified tab.
+        // Used when explicitly switching away from a tab to ensure the next 
+        // focus starts with a fresh, manageable batch of items.
+        if (tab === 'unread') {
+            setUnreadEvents([]);
+            setHasMoreUnread(true);
+        } else {
+            setAllEvents([]);
+            setHasMoreAll(true);
+        }
+    }, []);
+
     const deleteEvent = useCallback(async (id: string) => {
         setUnreadEvents(prev => prev.filter(ev => ev.id !== id));
         setAllEvents(prev => prev.filter(ev => ev.id !== id));
@@ -234,6 +267,7 @@ export function EventsProvider({ children }: EventsProviderProp) {
             events,
             unreadCount,
             markAsRead,
+            markAllAsRead,
             deleteEvent,
             isLoading,
             isLoadingMore,
@@ -242,6 +276,7 @@ export function EventsProvider({ children }: EventsProviderProp) {
             error,
             retry: () => fetchData(true),
             fetchMore,
+            clearTabData,
             activeToast,
             activeTab,
             setActiveTab

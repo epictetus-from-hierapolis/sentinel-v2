@@ -105,6 +105,19 @@ export const db = {
     }
   },
 
+  // UPDATE: Mark all unread events as read in a single operation
+  markAllAsRead: async () => {
+    try {
+      return await prisma.event.updateMany({
+        where: { isRead: false },
+        data: { isRead: true }
+      });
+    } catch (error) {
+      console.error("❌ Database update error (markAllAsRead):", error);
+      throw new Error("Could not update all security alerts to read status.");
+    }
+  },
+
   // DELETE: Remove a specific security event and its associated physical files
   deleteEvent: async (id: string) => {
     try {
