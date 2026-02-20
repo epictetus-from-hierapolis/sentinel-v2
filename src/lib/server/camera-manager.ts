@@ -125,9 +125,22 @@ class CameraManager {
         if (!exists) {
           log.info({ cameraId, timestamp: timestamp.toISOString() }, 'Reconciling missing event from file');
 
+          const videoPath = path.join(recordingsDir, file);
+
+          // PROTECTION: Delete 0-byte corrupted files (e.g., from network drops during recording)
+          try {
+            const stats = fs.statSync(videoPath);
+            if (stats.size === 0) {
+              log.warn({ file }, 'Reconciliation found 0-byte corrupt video, deleting and skipping...');
+              fs.unlinkSync(videoPath);
+              continue;
+            }
+          } catch (e) {
+            continue; // Skip if file can't be read
+          }
+
           const thumbFilename = `thumb_${cameraId}_${timestampMs}.jpg`;
           const thumbPath = path.join(process.cwd(), 'public', 'thumbnails', thumbFilename);
-          const videoPath = path.join(recordingsDir, file);
 
           // Ensure thumbnail exists, generate if missing
           if (!fs.existsSync(thumbPath)) {
