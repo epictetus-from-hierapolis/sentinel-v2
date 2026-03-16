@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
         controller.enqueue(new TextEncoder().encode(message));
       };
 
-      console.log('🔗 [SSE] Client connected to Sentinel Stream');
+      console.log(`🔗 [SSE] Client connected from process ${process.pid}`);
       // Subscribe to the internal event bus
       eventBus.on('new-security-event', sendEvent);
 

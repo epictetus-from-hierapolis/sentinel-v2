@@ -11,8 +11,8 @@ declare global {
 }
 
 if (!global.__EVENT_BUS__) {
+    console.log(`[EventBus] Initializing global bus in process ${process.pid}`);
     global.__EVENT_BUS__ = new EventEmitter();
-    // Increase listeners limit to prevent memory leak warnings (default is 10)
     global.__EVENT_BUS__.setMaxListeners(20);
 }
 

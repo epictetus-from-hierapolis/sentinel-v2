@@ -13,6 +13,7 @@ export async function register() {
         // Import CameraManager lazily to avoid Edge Runtime import issues.
         const { getCameraManager } = await import('@/lib/server/camera-manager');
         const manager = getCameraManager();
+        console.log(`[Instrumentation] Starting monitoring in process ${process.pid}`);
         manager.startMonitoring();
     }
 }
