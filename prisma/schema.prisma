@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id String @id @default(uuid())
+
+  // Camera Link (Foreign Key)
+  cameraId String
+  camera   Camera   @relation(fields: [cameraId], references: [id])
+
+  type String
+  videoPath String
+  thumbnailPath String
+  isRead Boolean @default(false)
+  timestamp DateTime @default(now())
+}
+
+model Camera {
+  id String @id
+  name String
+  ipAddress String
+  events Event[] // Relation: One camera has many events
+}
+
+model User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+}

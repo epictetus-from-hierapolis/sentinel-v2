@@ -1,0 +1,31 @@
+{
+    "id": "sentinel-security-hub",
+    "name": "Sentinel Security Hub",
+    "short_name": "Sentinel",
+    "description": "Advanced Security Event Hub",
+    "start_url": "/events",
+    "display": "standalone",
+    "background_color": "#020617",
+    "theme_color": "#020617",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "orientation": "portrait"
+}

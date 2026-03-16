@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.env.production.example
+*.db
+*.db-journal
+data/
+public/recordings/*
+!public/recordings/.gitkeep
+public/thumbnails/*
+!public/thumbnails/.gitkeep
+README.md
+DEPLOYMENT.md
+npm-debug.log
