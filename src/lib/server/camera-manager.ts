@@ -377,6 +377,11 @@ class CameraManager {
       videoPath
     ]);
 
+    let stderr = '';
+    ffmpeg.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
     ffmpeg.on('close', (code) => {
       this.recordingStatus.set(config.id, false);
 
@@ -384,7 +389,6 @@ class CameraManager {
         log.info({ cameraId: config.id, videoFilename }, 'FFmpeg recording saved successfully');
 
         // Generate thumbnail LOCALLY from the saved video file.
-        // This saves bandwidth and ensures sync.
         this.generateThumbnailFromVideo(videoPath, thumbPath, async () => {
           // Save event to DB only after thumbnail is ready
           const newEvent = await db.addEvent({
@@ -399,7 +403,7 @@ class CameraManager {
         });
 
       } else {
-        log.error({ cameraId: config.id, exitCode: code }, 'FFmpeg recording process failed');
+        log.error({ cameraId: config.id, exitCode: code, stderr }, 'FFmpeg recording process failed');
       }
     });
   }
