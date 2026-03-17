@@ -359,8 +359,8 @@ class CameraManager {
     const videoPath = path.join(process.cwd(), 'public', 'recordings', videoFilename);
     const thumbPath = path.join(process.cwd(), 'public', 'thumbnails', thumbFilename);
 
-    const user = encodeURIComponent(config.credentials.user).replace(/['()]/g, escape);
-    const pass = encodeURIComponent(config.credentials.pass).replace(/['()]/g, escape);
+    const user = encodeURIComponent(config.credentials.user);
+    const pass = encodeURIComponent(config.credentials.pass);
     const rtspUrl = `rtsp://${user}:${pass}@${config.ipAddress}:554${config.streamPath}`;
 
     // Note: Thumbnail generation via RTSP removed to prevent camera locking.
@@ -403,7 +403,9 @@ class CameraManager {
         });
 
       } else {
-        log.error({ cameraId: config.id, exitCode: code, stderr }, 'FFmpeg recording process failed');
+        // Direct console error to bypass potential logger constraints and show in docker logs
+        console.error(`❌ [FFmpeg Error] Camera ${config.id} failed (code ${code}). Stderr: ${stderr}`);
+        log.error({ cameraId: config.id, exitCode: code }, 'FFmpeg recording process failed');
       }
     });
   }
